@@ -1,7 +1,7 @@
 declare @ddateb datetime, @ddatee datetime;
 declare @dcomponent varchar(50)
 
-set @dcomponent='КСПД'--'Резервное копирование'--'Wifi';--'Adaptive Server Anywhere - rc_unact'--
+set @dcomponent='пїЅпїЅпїЅпїЅ'--'пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ'--'Wifi';--'Adaptive Server Anywhere - rc_unact'--
 set @ddateb='2012-04-01';
 set @ddatee='2012-05-01';
 
@@ -19,7 +19,7 @@ from jira.jiraissue
 join jira.nodeassociation on jira.nodeassociation.SOURCE_NODE_ID=jira.jiraissue.id
 join jira.component on jira.component.id=jira.nodeassociation.SINK_NODE_ID
 where 
-jira.jiraissue.issuetype=(select id from jira.issuetype where pname='Инцидент')and
+jira.jiraissue.issuetype=(select id from jira.issuetype where pname='пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ')and
 jira.component.cname=@dcomponent and jira.nodeassociation.ASSOCIATION_TYPE='IssueComponent'and 
 jira.jiraissue.resolution<>2
 
@@ -30,13 +30,13 @@ where FIELD='status'
 
 delete #sla_issue_step where state not in('1','5');
 
---Закрытые до @ddateb
+--пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ @ddateb
 delete from #sla_issue
 where (select max(ddate) from #sla_issue_step where #sla_issue.id=#sla_issue_step.id and #sla_issue_step.state='5')<@ddateb
 
 delete from #sla_issue_step where #sla_issue_step.id not in(select id from #sla_issue);
 --
---Впервые открытые после @ddatee
+--пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ @ddatee
 
 delete from #sla_issue
 where (select min(ddate) from #sla_issue_step where #sla_issue.id=#sla_issue_step.id and #sla_issue_step.state='1')>=@ddatee
@@ -47,16 +47,16 @@ delete from #sla_issue_step where #sla_issue_step.id not in(select id from #sla_
 select 	*,(select count(*) from #sla_issue_step slave where slave.ddate<=main.ddate and slave.id=main.id) as numb
 into #sla_issue_step_numb
 from #sla_issue_step main
---Дублирующиеся step`ы
+--пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ step`пїЅ
 delete main from #sla_issue_step_numb as main
 where exists(select * from #sla_issue_step_numb slave where slave.id=main.id and main.numb-1=slave.numb and slave.state=main.state)
 --
 
---step`ы вне диапазона
+--step`пїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 delete from #sla_issue_step_numb where ddate not between @ddateb and @ddatee
 --
 
--- добавляем недостающие step`ы
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ step`пїЅ
 insert into #sla_issue_step_numb
 select isnull(id,0),@ddatee,5,999 from #sla_issue_step_numb main where 
 numb =(select max(numb) from #sla_issue_step_numb slave where main.id=slave.id group by id) and state=1
