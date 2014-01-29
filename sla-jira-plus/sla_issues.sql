@@ -38,6 +38,14 @@ where (select min(ddate) from #sla_issue_step where #sla_issue.id=#sla_issue_ste
 delete from #sla_issue_step where #sla_issue_step.id not in(select id from #sla_issue);
 
 --
+--Впервые закрытые изменения после @ddatee
+
+delete from #sla_issue
+where (select min(ddate) from #sla_issue_step where #sla_issue.id=#sla_issue_step.id and #sla_issue_step.state='5' and #sla_issue.issuetype=38)>=@ddatee
+delete from #sla_issue_step where #sla_issue_step.id not in(select id from #sla_issue);
+
+--
+
 select 	*,(select count(*) from #sla_issue_step slave where slave.ddate<=main.ddate and slave.id=main.id) as numb
 into #sla_issue_step_numb
 from #sla_issue_step main
@@ -83,9 +91,9 @@ select 	main.id,
 	(select pname from jira.issuetype where jira.issuetype.id=main.issuetype) as IssueType,
 	case main.issuetype
 	 when 32 then	--стоимость инцидент
-		isnull((select factor from dbo.sla_factor where dbo.sla_factor.component_id=main.component and dbo.sla_factor.priority_id=999),0)
+		isnull((select factor from dbo.sla_factor where dbo.sla_factor.component_id=main.component and dbo.sla_factor.priority_id=999-isnull((select 100 from jira.customfieldvalue where customfield=10511 and issue=main.id and stringvalue='Москва-Юг'),0)),0)
 	 when 38 then	--стоимость изменение
-		isnull((select factor from dbo.sla_factor where dbo.sla_factor.component_id=main.component and dbo.sla_factor.priority_id=998),0)
+		isnull((select factor from dbo.sla_factor where dbo.sla_factor.component_id=main.component and dbo.sla_factor.priority_id=998-isnull((select 100 from jira.customfieldvalue where customfield=10511 and issue=main.id and stringvalue='Москва-Юг'),0)),0)
 	end as IssueMaxPrice
 	into #rep
 from #sla_issue main order by otv,id;
