@@ -15,7 +15,7 @@ join jira.component on jira.component.id=jira.nodeassociation.SINK_NODE_ID
 where 
 jira.jiraissue.issuetype in (select id from jira.issuetype where pname='Инцидент' or pname = 'Изменение')and
 jira.component.cname=@dcomponent and jira.nodeassociation.ASSOCIATION_TYPE='IssueComponent'and 
-jira.jiraissue.resolution<>2
+jira.jiraissue.resolution<>2 and jira.customfieldvalue.customfield=10511 and jira.customfieldvalue.stringvalue=@location
 
 select #sla_issue.id, jira.changegroup.created as ddate, cast(newvalue as varchar) as state into #sla_issue_step from #sla_issue
 join jira.changegroup on jira.changegroup.issueid=#sla_issue.id
