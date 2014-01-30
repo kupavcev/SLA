@@ -12,6 +12,7 @@ into #sla_issue
 from jira.jiraissue
 join jira.nodeassociation on jira.nodeassociation.SOURCE_NODE_ID=jira.jiraissue.id
 join jira.component on jira.component.id=jira.nodeassociation.SINK_NODE_ID
+join jira.customfieldvalue on jira.customfieldvalue.issue=jira.jiraissue.id
 where 
 jira.jiraissue.issuetype in (select id from jira.issuetype where pname='Инцидент' or pname = 'Изменение')and
 jira.component.cname=@dcomponent and jira.nodeassociation.ASSOCIATION_TYPE='IssueComponent'and 
