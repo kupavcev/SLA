@@ -7,16 +7,15 @@ select
 	jira.jiraissue.created,
 	jira.component.id as component,
 	jira.jiraissue.issuetype
-	
+
 into #sla_issue 
 from jira.jiraissue
 join jira.nodeassociation on jira.nodeassociation.SOURCE_NODE_ID=jira.jiraissue.id
 join jira.component on jira.component.id=jira.nodeassociation.SINK_NODE_ID
-join jira.customfieldvalue on jira.customfieldvalue.issue=jira.jiraissue.id
 where 
 jira.jiraissue.issuetype in (select id from jira.issuetype where pname='Инцидент' or pname = 'Изменение')and
 jira.component.cname=@dcomponent and jira.nodeassociation.ASSOCIATION_TYPE='IssueComponent'and 
-jira.jiraissue.resolution<>2 and jira.customfieldvalue.customfield=10511 and jira.customfieldvalue.stringvalue=@location
+jira.jiraissue.resolution<>2
 
 select #sla_issue.id, jira.changegroup.created as ddate, cast(newvalue as varchar) as state into #sla_issue_step from #sla_issue
 join jira.changegroup on jira.changegroup.issueid=#sla_issue.id
@@ -92,9 +91,9 @@ select 	main.id,
 	(select pname from jira.issuetype where jira.issuetype.id=main.issuetype) as IssueType,
 	case main.issuetype
 	 when 32 then	--стоимость инцидент
-		isnull((select factor from dbo.sla_factor where dbo.sla_factor.component_id=main.component and dbo.sla_factor.priority_id=999-isnull((select 100 from jira.customfieldvalue where customfield=10511 and issue=main.id and stringvalue='Москва-Юг'),0)),0)
+		isnull((select factor from dbo.sla_factor where dbo.sla_factor.component_id=main.component and dbo.sla_factor.priority_id=999),0)
 	 when 38 then	--стоимость изменение
-		isnull((select factor from dbo.sla_factor where dbo.sla_factor.component_id=main.component and dbo.sla_factor.priority_id=998-isnull((select 100 from jira.customfieldvalue where customfield=10511 and issue=main.id and stringvalue='Москва-Юг'),0)),0)
+		isnull((select factor from dbo.sla_factor where dbo.sla_factor.component_id=main.component and dbo.sla_factor.priority_id=998),0)
 	end as IssueMaxPrice
 	into #rep
 from #sla_issue main order by otv,id;
