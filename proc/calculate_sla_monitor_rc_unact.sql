@@ -35,10 +35,10 @@ declare @ti float;
 set @ti=(select cast(sum(datediff(SECOND,starttime,endtime)) as float)/60 as ti from #tmp);
 drop table #tmp;
 
-select  	@ddateb as date_uid,
-		(select owner from sla_owner where component_info='Adaptive Server Anywhere - rc_unact'),
+select  	@ddateb1 as date_uid,
+		(select owner from sla_owner where component_info='Adaptive Server Anywhere - rc_unact') as person_uid,
 		'type of: month bonus' as issuetype_uid,
-		22 as bonustype_uid,
+		21 as bonustype_uid,
 		7000*((1-@ti/43200)-0.996)/(1-0.996) as bonus,
 		-1 as issueid
 
