@@ -9,7 +9,6 @@ set @dcomponent=@component;--'Рабочие станции';
 set @sla_type=3;
 declare @comp int;
 set @comp=(select component_id from sla_owner where component_info like @dcomponent and sla_type=@sla_type);
-select @comp;
 declare @sla_owner_count int;
 set @sla_owner_count=(select count(*) from sla_owner where sla_type=@sla_type and component_id=@comp);
 
