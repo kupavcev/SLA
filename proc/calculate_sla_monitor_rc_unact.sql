@@ -5,6 +5,9 @@ declare @ddateb1 datetime, @ddatee1 datetime;
 declare @ddateb varchar(20), @ddatee varchar(20);
 declare @sql nvarchar(4000);
 set dateformat dmy;
+	create table #result(date_uid datetime,person_uid int,issuetype_uid varchar(150),bonustype_uid int,bonus float,issueid bigint);
+	while @month<(DATEADD(month, DATEDIFF(month, 0, getdate()+1), 0)) begin
+	
 set @ddateb1=DATEADD(month, DATEDIFF(month, 0, @month), 0)--'01.10.2013';
 set @ddatee1=DATEADD(month, DATEDIFF(month, 0, @month)+1, 0);--'01.11.2013';
 set @ddateb='"'+cast(datepart(year,@ddateb1)as varchar(4))+'-'+cast(datepart(month,@ddateb1)as varchar(2))+'-'+cast(datepart(day,@ddateb1)as varchar(2))+'"';
@@ -35,11 +38,17 @@ declare @ti float;
 set @ti=(select cast(sum(datediff(SECOND,starttime,endtime)) as float)/60 as ti from #tmp);
 drop table #tmp;
 
+insert into #result
 select  	@ddateb1 as date_uid,
 		(select owner from sla_owner where component_info='Adaptive Server Anywhere - rc_unact') as person_uid,
 		'type of: month bonus' as issuetype_uid,
 		21 as bonustype_uid,
 		7000*((1-@ti/43200)-0.996)/(1-0.996) as bonus,
 		-1 as issueid
+		
 
+set @month=dateadd(month,1,@month);
+	end
+	select * from #result;
+	drop table #result;
 end
