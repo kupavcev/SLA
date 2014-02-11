@@ -6,7 +6,7 @@ declare @ddateb varchar(20), @ddatee varchar(20);
 declare @sql nvarchar(4000);
 set dateformat dmy;
 	create table #result(date_uid datetime,person_uid int,issuetype_uid varchar(150),bonustype_uid int,bonus float,issueid bigint);
-	while @month<(DATEADD(month, DATEDIFF(month, 0, getdate()+1), 0)) begin
+	while @month<='01.02.2014' begin
 	
 set @ddateb1=DATEADD(month, DATEDIFF(month, 0, @month), 0)--'01.10.2013';
 set @ddatee1=DATEADD(month, DATEDIFF(month, 0, @month)+1, 0);--'01.11.2013';
