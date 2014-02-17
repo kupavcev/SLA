@@ -101,8 +101,7 @@ set @Q=(select sum(ti) from #rep1);
 set @Q=1-(@Q/43200);
 
 declare @sla_owner_count int;
-set @sla_owner_count=isnull((select count(*) from sla_owner where sla_type=@sla_type and component_id=(select top 1 component from #rep1)),1);
-
+set @sla_owner_count=isnull((select count(*) from sla_owner where sla_type=@sla_type and sla_owner.component_info=@dcomponent),1);
 
 if @sla_owner_count=0 set @sla_owner_count=1;
 
