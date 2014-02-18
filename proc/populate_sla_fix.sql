@@ -5,7 +5,7 @@ set @ddatee=DATEADD(month, DATEDIFF(month, 0, getdate()+1), 0);
 create table #tmp(date_uid datetime,person_uid int,issuetype_uid varchar(200),bonustype_uid int,bonus float,issueid bigint) 
 create table #sla_owner(id int identity(1,1) not null,component_info varchar(150));
 insert into #sla_owner(component_info)
-select component_info from sla_owner where sla_type=3;
+select distinct component_info from sla_owner where sla_type=3;
 set @ddatei=@ddateb;
 while @ddatei<@ddatee begin
 	set @i=1;
